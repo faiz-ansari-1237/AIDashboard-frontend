@@ -201,7 +201,8 @@ const App = () => {
 
     const handleSignUp = async (username, password) => {
         try {
-            const response = await authFetch('/signup', { // Use authFetch for signup
+            // MODIFIED: Use authFetch for signup
+            const response = await authFetch('/signup', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -226,7 +227,8 @@ const App = () => {
 
     const handleSignIn = async (username, password) => {
         try {
-            const response = await authFetch('/login', { // Use authFetch for login
+            // MODIFIED: Use authFetch for login
+            const response = await authFetch('/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -288,11 +290,14 @@ const App = () => {
             // This means we are navigating to a specific quiz.
             // If itemId is a quiz ID, set selectedQuizId.
             setSelectedQuizId(itemId);
-        } else if (sectionId === 'quizzes-content' && !itemId) {
-            // This is for the general "Quizzes & Assessments" link from the sidebar
-            // No specific quiz or course ID is selected, so it should fetch all quizzes.
+        } else if (sectionId.startsWith('quizzes-content-for-course-')) { // NEW: Handle navigation specifically for quizzes of a course
+            targetSection = 'quizzes-content';
+            setSelectedCourseId(itemId); // itemId here is the course ID
+            setSelectedQuizId(null); // Ensure no specific quiz is selected
+        }
+        else { // General navigation for other sections
+            setSelectedCourseId(null);
             setSelectedQuizId(null);
-            setSelectedCourseId(null); // Ensure both are null for the general view
         }
         // For other sections, both selectedQuizId and selectedCourseId remain null, which is fine.
 
@@ -319,8 +324,7 @@ const App = () => {
                     handleSectionChange('quizzes-content', initialHash.replace('quiz-', ''));
                 } else if (initialHash.startsWith('course-quizzes-')) {
                     // NEW: Handle direct URL access like #course-quizzes-someCourseId
-                    handleSectionChange('quizzes-content', null); // Clear quizId
-                    setSelectedCourseId(initialHash.replace('course-quizzes-', '')); // Set courseId
+                    handleSectionChange('quizzes-content-for-course-', initialHash.replace('course-quizzes-', '')); // Use the new section ID
                 }
                 else {
                     handleSectionChange(initialHash + '-content');
@@ -459,6 +463,7 @@ const App = () => {
                                     return (
                                         <QuizzesContent
                                             quizId={selectedQuizId} // Pass selectedQuizId to QuizzesContent
+                                            courseId={selectedCourseId} // Pass selectedCourseId to QuizzesContent
                                             handleSectionChange={handleSectionChange}
                                             authFetch={authFetch} // Pass authFetch to QuizzesContent
                                         />
