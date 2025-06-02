@@ -32,9 +32,11 @@ const aiFocusMessages = [
     `Time for a quick review! Your AI tutor suggests a 15-minute quiz on **CSS Flexbox and Grid** to solidify your frontend skills.`
 ];
 
+// IMPORTANT: This URL MUST be your deployed Render backend URL, and it MUST end with '/api'.
 const API_BASE_URL = 'https://aidashboard-backend.onrender.com/api';
 
-// Helper function for authenticated fetches - This remains robust
+// Helper function for authenticated fetches
+// This function now prepends API_BASE_URL to the URL argument.
 const authFetch = async (url, options = {}) => {
     const token = localStorage.getItem('token'); // Always get the latest token from localStorage
     const headers = {
@@ -46,7 +48,8 @@ const authFetch = async (url, options = {}) => {
         headers['Authorization'] = `Bearer ${token}`;
     }
 
-    const response = await fetch(url, { ...options, headers });
+    // Prepend API_BASE_URL to the request URL
+    const response = await fetch(`${API_BASE_URL}${url}`, { ...options, headers });
     return response;
 };
 
@@ -110,12 +113,8 @@ const App = () => {
             const token = localStorage.getItem('token');
             if (token) {
                 try {
-                    const response = await fetch(`${API_BASE_URL}/auth/verify`, {
-                        method: 'GET',
-                        headers: {
-                            'Authorization': `Bearer ${token}` // Ensure token is sent for verification
-                        }
-                    });
+                    // Use authFetch here too, it will handle the API_BASE_URL prefix
+                    const response = await authFetch('/auth/verify', { method: 'GET' });
                     if (response.ok) {
                         const data = await response.json();
                         setUser({
@@ -170,12 +169,13 @@ const App = () => {
         }
 
         try {
-            const response = await authFetch(`${API_BASE_URL}/courses`);
+            const response = await authFetch('/courses'); // Use authFetch for courses
             if (!response.ok) {
                 // If 401/403, the token might have expired while the user was active
                 if (response.status === 401 || response.status === 403) {
                     handleSignOut(); // Force logout to clear invalid token
-                    alert('Your session has expired. Please log in again.');
+                    // alert('Your session has expired. Please log in again.'); // Replaced alert with console.error
+                    console.error('Your session has expired. Please log in again.');
                 }
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -184,7 +184,7 @@ const App = () => {
             console.log("Courses fetched from backend successfully!");
         } catch (error) {
             console.error("Failed to fetch courses from backend, falling back to mock data:", error);
-            // setCourses(mockCourses); // If an error occurs even with a user, might still show mock
+            setCourses(mockCourses); // Fallback to mock data on error
         }
     }, [user, handleSignOut]); // Dependency on user and handleSignOut (which is stable)
 
@@ -201,7 +201,7 @@ const App = () => {
 
     const handleSignUp = async (username, password) => {
         try {
-            const response = await fetch(`${API_BASE_URL}/signup`, {
+            const response = await authFetch('/signup', { // Use authFetch for signup
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -226,7 +226,7 @@ const App = () => {
 
     const handleSignIn = async (username, password) => {
         try {
-            const response = await fetch(`${API_BASE_URL}/login`, {
+            const response = await authFetch('/login', { // Use authFetch for login
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -277,19 +277,25 @@ const App = () => {
 
     const handleSectionChange = (sectionId, itemId = null) => {
         let targetSection = sectionId;
+        // Reset quiz and course IDs
+        setSelectedCourseId(null);
+        setSelectedQuizId(null);
+
         if (sectionId.startsWith('course-')) {
             targetSection = 'course-detail-content';
             setSelectedCourseId(itemId);
-            setSelectedQuizId(null);
-        } else if (sectionId === 'quizzes-content' && itemId) { // MODIFIED CONDITION: Check for exact string 'quizzes-content' and if itemId is provided
-            targetSection = 'quizzes-content';
+        } else if (sectionId === 'quizzes-content' && itemId) {
+            // This means we are navigating to a specific quiz.
+            // If itemId is a quiz ID, set selectedQuizId.
             setSelectedQuizId(itemId);
-            setSelectedCourseId(null);
-        }
-        else {
-            setSelectedCourseId(null);
+        } else if (sectionId === 'quizzes-content' && !itemId) {
+            // This is for the general "Quizzes & Assessments" link from the sidebar
+            // No specific quiz or course ID is selected, so it should fetch all quizzes.
             setSelectedQuizId(null);
+            setSelectedCourseId(null); // Ensure both are null for the general view
         }
+        // For other sections, both selectedQuizId and selectedCourseId remain null, which is fine.
+
         setActiveSection(targetSection);
         window.history.pushState(null, '', `#${sectionId.replace('-content', '')}`);
 
@@ -300,7 +306,7 @@ const App = () => {
 
     // Initial content loading on component mount (after user loading)
     useEffect(() => {
-        if (!isLoadingUser) { // Ensure initial user check is complete before setting initial section
+        if (!isLoadingUser) { // Ensure the initial user session check is complete
             updateAIFocus();
             renderRecommendations();
 
@@ -310,8 +316,11 @@ const App = () => {
                     handleSectionChange(initialHash, initialHash.replace('course-', ''));
                 } else if (initialHash.startsWith('quiz-')) {
                     // This block handles direct URL access like #quiz-someid
-                    // It will set selectedQuizId correctly
                     handleSectionChange('quizzes-content', initialHash.replace('quiz-', ''));
+                } else if (initialHash.startsWith('course-quizzes-')) {
+                    // NEW: Handle direct URL access like #course-quizzes-someCourseId
+                    handleSectionChange('quizzes-content', null); // Clear quizId
+                    setSelectedCourseId(initialHash.replace('course-quizzes-', '')); // Set courseId
                 }
                 else {
                     handleSectionChange(initialHash + '-content');
@@ -320,7 +329,7 @@ const App = () => {
                 handleSectionChange('dashboard-content');
             }
         }
-    }, [isLoadingUser]); // Depend on isLoadingUser so it runs after auth check
+    }, [isLoadingUser]);
 
     const handleSendChat = async () => {
         if (chatInput.trim() === '') return;
@@ -446,11 +455,12 @@ const App = () => {
                                             handleSectionChange={handleSectionChange}
                                         />
                                     );
-                                case 'quizzes-content':
+                                case 'quizzes-content': // This section now handles both list and specific quiz
                                     return (
                                         <QuizzesContent
-                                            quizId={selectedQuizId}
+                                            quizId={selectedQuizId} // Pass selectedQuizId to QuizzesContent
                                             handleSectionChange={handleSectionChange}
+                                            authFetch={authFetch} // Pass authFetch to QuizzesContent
                                         />
                                     );
                                 case 'progress-content':
