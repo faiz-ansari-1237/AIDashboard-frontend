@@ -1,0 +1,350 @@
+/* Custom scrollbar for better aesthetics, especially in dark mode */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Dark mode scrollbar */
+body.dark .custom-scrollbar::-webkit-scrollbar-track {
+    background: #1a1a1a;
+    /* Darker track for OG black */
+}
+
+body.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #444;
+    /* Darker thumb for OG black */
+}
+
+body.dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #666;
+    /* Darker thumb hover for OG black */
+}
+
+/* Ensure smooth transitions for sidebar */
+.sidebar-panel {
+    transition: width 0.3s ease-in-out, padding 0.3s ease-in-out;
+    /* Add padding to transition */
+    overflow: hidden;
+    /* Hide content that overflows during transition */
+}
+
+/* Sidebar collapsed state */
+.sidebar-panel.collapsed {
+    width: 80px;
+    /* Fixed width for collapsed state */
+    padding-left: 1rem;
+    /* Adjust padding for collapsed state */
+    padding-right: 1rem;
+    /* Adjust padding for collapsed state */
+}
+
+.sidebar-panel.collapsed .sidebar-link span {
+    display: none;
+    /* Hide text when collapsed */
+}
+
+.sidebar-panel.collapsed .sidebar-link {
+    justify-content: center;
+    /* Center icons when text is hidden */
+    padding-left: 0.5rem;
+    /* Adjust padding for centered icon */
+    padding-right: 0.5rem;
+    /* Adjust padding for centered icon */
+}
+
+.sidebar-panel.collapsed .sidebar-link i {
+    margin-right: 0 !important;
+    /* Remove margin from icons */
+}
+
+.sidebar-panel.collapsed .sidebar-promo {
+    display: none;
+    /* Hide promo box when collapsed */
+}
+
+.sidebar-panel.collapsed hr {
+    display: none;
+    /* Hide HR when collapsed */
+}
+
+.sidebar-panel.collapsed h3 {
+    display: none;
+    /* Hide EXPLORE heading when collapsed */
+}
+
+
+/* AI-inspired dynamic emphasis */
+.ai-emphasized {
+    animation: pulse-emphasis 1.5s infinite alternate;
+}
+
+@keyframes pulse-emphasis {
+    0% {
+        box-shadow: 0 0 0px rgba(0, 0, 0, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 15px rgba(100, 100, 255, 0.4);
+    }
+}
+
+/* Dark mode specific overrides for a true "OG Black" feel */
+body.dark {
+    background-color: #0a0a0a;
+    /* Very dark background */
+    color: #e0e0e0;
+    /* Light text for dark mode */
+}
+
+body.dark .bg-white {
+    background-color: #1c1c1c;
+}
+
+/* Darker background for panels, header, sidebar */
+body.dark .shadow-md {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.24);
+}
+
+/* Stronger, darker shadow */
+body.dark .border-gray-200 {
+    border-color: #333;
+}
+
+/* Darker borders */
+body.dark .hover\\:bg-gray-100:hover {
+    background-color: #282828;
+}
+
+/* Darker hover for sidebar/buttons */
+body.dark .text-gray-600 {
+    color: #b0b0b0;
+}
+
+/* Lighter grey for secondary text */
+body.dark .text-gray-700 {
+    color: #c0c0c0;
+}
+
+/* Lighter grey for primary text */
+body.dark .bg-blue-500 {
+    background-color: #6366f1;
+}
+
+/* A vibrant blue for dark mode */
+body.dark .hover\\:bg-blue-600:hover {
+    background-color: #4f46e5;
+}
+
+body.dark .bg-gray-50 {
+    background-color: #0a0a0a;
+}
+
+/* Main body background */
+body.dark .bg-gray-200 {
+    background-color: #333;
+}
+
+/* Category chips */
+body.dark .text-gray-800 {
+    color: #e0e0e0;
+}
+
+/* Ensure main text is light */
+body.dark input {
+    background-color: #282828;
+    border-color: #444;
+    color: #e0e0e0;
+}
+
+/* Specific dark mode adjustments for some complex elements */
+body.dark .bg-gradient-to-r.from-blue-100.to-purple-100 {
+    background-image: linear-gradient(to right, #282828, #3a2848);
+    /* Darker gradient for promo */
+}
+
+body.dark .text-blue-600 {
+    color: #6366f1;
+}
+
+/* Ensure blue accents are consistent */
+body.dark .text-blue-400 {
+    color: #818cf8;
+}
+
+/* Lighter blue for dark mode accents */
+body.dark .text-green-600 {
+    color: #4CAF50;
+}
+
+/* Green for dark mode */
+body.dark .text-yellow-500 {
+    color: #FFC107;
+}
+
+/* Yellow for dark mode */
+body.dark .text-red-500 {
+    color: #F44336;
+}
+
+/* Red for dark mode */
+body.dark .text-purple-500 {
+    color: #9C27B0;
+}
+
+/* Purple for dark mode */
+body.dark .text-indigo-500 {
+    color: #673AB7;
+}
+
+/* Indigo for dark mode */
+body.dark .text-teal-500 {
+    color: #009688;
+}
+
+/* Teal for dark mode */
+body.dark .text-cyan-500 {
+    color: #00BCD4;
+}
+
+/* Cyan for dark mode */
+
+/* Light theme aesthetic fixes */
+body:not(.dark) .bg-gray-50 {
+    background-color: #f9fafb;
+}
+
+/* Slightly lighter background */
+body:not(.dark) .bg-white {
+    background-color: #ffffff;
+}
+
+/* Pure white for main elements */
+body:not(.dark) .text-gray-900 {
+    color: #1f2937;
+}
+
+/* Darker text for better contrast */
+body:not(.dark) .text-gray-800 {
+    color: #1f2937;
+}
+
+body:not(.dark) .text-gray-700 {
+    color: #374151;
+}
+
+body:not(.dark) .text-gray-600 {
+    color: #4b5563;
+}
+
+body:not(.dark) .border-gray-200 {
+    border-color: #e5e7eb;
+}
+
+body:not(.dark) .hover\\:bg-gray-100:hover {
+    background-color: #f3f4f6;
+}
+
+body:not(.dark) .bg-gray-200 {
+    background-color: #e5e7eb;
+}
+
+/* Category chips */
+body:not(.dark) input {
+    background-color: #ffffff;
+    border-color: #d1d5db;
+    color: #1f2937;
+}
+
+/* Modal specific styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    /* Slightly darker overlay */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 24px;
+    border-radius: 12px;
+    /* More rounded corners */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+    /* Stronger shadow */
+    width: 90%;
+    max-width: 550px;
+    /* Slightly wider */
+    position: relative;
+    animation: fadeIn 0.3s ease-out;
+}
+
+body.dark .modal-content {
+    background-color: #1e1e1e;
+    /* Darker modal background */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+    /* Darker shadow */
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Dropdown specific styles */
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    /* Position below the button */
+    right: 0;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    min-width: 180px;
+    z-index: 999;
+    animation: fadeInScale 0.2s ease-out;
+}
+
+body.dark .dropdown-menu {
+    background-color: #1e1e1e;
+    /* Darker dropdown background */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
