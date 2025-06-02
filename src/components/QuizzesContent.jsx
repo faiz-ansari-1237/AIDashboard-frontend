@@ -7,8 +7,9 @@ import React, { useState, useEffect } from 'react';
  * @param {object} props - Component props.
  * @param {string} [props.quizId] - The ID of the specific quiz to display.
  * @param {function} props.handleSectionChange - Function to navigate back to other sections.
+ * @param {function} props.authFetch - The authenticated fetch helper passed from App.jsx. (NEW PROP)
  */
-const QuizzesContent = ({ quizId, handleSectionChange }) => {
+const QuizzesContent = ({ quizId, handleSectionChange, authFetch }) => { // Added authFetch to props
     const [quiz, setQuiz] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -17,34 +18,22 @@ const QuizzesContent = ({ quizId, handleSectionChange }) => {
     const [submissionResult, setSubmissionResult] = useState(null); // Stores the backend's result
     const [isSubmitting, setIsSubmitting] = useState(false); // Tracks if submission is in progress
 
-    const API_BASE_URL = 'https://aidashboard-backend.onrender.com/api/';
-
-    // Helper function for authenticated fetches (copied from App.jsx for reusability)
-    // In a larger app, you'd put this in a separate utility file.
-    const authFetch = async (url, options = {}) => {
-        const token = localStorage.getItem('token');
-        const headers = {
-            ...options.headers,
-            'Content-Type': 'application/json',
-        };
-
-        if (token) {
-            headers['Authorization'] = `Bearer ${token}`;
-        }
-
-        const response = await fetch(url, { ...options, headers });
-        return response;
-    };
-
+    // REMOVED: API_BASE_URL is no longer needed here, authFetch handles it.
+    // REMOVED: authFetch helper function is no longer needed here, it's passed as a prop.
 
     useEffect(() => {
         const fetchQuiz = async () => {
             if (!quizId) {
-                // If no specific quiz ID, this component could display a list of all quizzes.
-                // For now, it will just show a message.
                 setLoading(false);
                 setError("No quiz selected. Please select a quiz from a course.");
                 setQuiz(null);
+                return;
+            }
+
+            // Ensure authFetch is available before making API calls
+            if (!authFetch) {
+                setLoading(false);
+                setError("Authentication helper not available. Please ensure you are logged in.");
                 return;
             }
 
@@ -55,8 +44,8 @@ const QuizzesContent = ({ quizId, handleSectionChange }) => {
             setSelectedAnswers({});
 
             try {
-                // Use authFetch for this request
-                const response = await authFetch(`${API_BASE_URL}/quizzes/${quizId}`);
+                // Use authFetch for this request. It already prepends API_BASE_URL.
+                const response = await authFetch(`/quizzes/${quizId}`);
                 if (!response.ok) {
                     if (response.status === 401 || response.status === 403) {
                         console.error('Authentication failed while fetching quiz. Please log in again.');
@@ -67,7 +56,7 @@ const QuizzesContent = ({ quizId, handleSectionChange }) => {
                 setQuiz(data);
             } catch (err) {
                 console.error("Error fetching quiz:", err);
-                setError('Failed to load quiz. Please try again later.');
+                setError(`Failed to load quiz: ${err.message}. Please try again later.`);
                 setQuiz(null);
             } finally {
                 setLoading(false);
@@ -75,7 +64,7 @@ const QuizzesContent = ({ quizId, handleSectionChange }) => {
         };
 
         fetchQuiz();
-    }, [quizId]); // Re-fetch when quizId changes
+    }, [quizId, authFetch]); // Added authFetch to dependencies
 
     const handleAnswerChange = (questionId, answer) => {
         setSelectedAnswers(prevAnswers => ({
@@ -97,8 +86,8 @@ const QuizzesContent = ({ quizId, handleSectionChange }) => {
         }));
 
         try {
-            // Use authFetch for this submission
-            const response = await authFetch(`${API_BASE_URL}/quizzes/${quiz._id}/submit`, {
+            // Use authFetch for this submission. It already prepends API_BASE_URL.
+            const response = await authFetch(`/quizzes/${quiz._id}/submit`, {
                 method: 'POST',
                 body: JSON.stringify({ answers: answersToSubmit })
             });
@@ -107,7 +96,8 @@ const QuizzesContent = ({ quizId, handleSectionChange }) => {
                  if (response.status === 401 || response.status === 403) {
                     console.error('Authentication failed while submitting quiz. Please log in again.');
                 }
-                throw new Error(`Quiz submission failed: ${response.statusText}`);
+                const errorData = await response.json().catch(() => ({ message: 'Unknown error' })); // Try to parse error, fallback
+                throw new Error(`Quiz submission failed: ${errorData.message || response.statusText}`);
             }
 
             const result = await response.json();
@@ -115,7 +105,7 @@ const QuizzesContent = ({ quizId, handleSectionChange }) => {
             setSubmitted(true);
         } catch (err) {
             console.error("Error submitting quiz:", err);
-            setError('Failed to submit quiz. Please try again later.');
+            setError(`Failed to submit quiz: ${err.message}. Please try again later.`);
         } finally {
             setIsSubmitting(false);
         }
