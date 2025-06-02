@@ -32,7 +32,7 @@ const aiFocusMessages = [
     `Time for a quick review! Your AI tutor suggests a 15-minute quiz on **CSS Flexbox and Grid** to solidify your frontend skills.`
 ];
 
-const API_BASE_URL = 'https://aidashboard-backend.onrender.com/';
+const API_BASE_URL = 'https://aidashboard-backend.onrender.com/api';
 
 // Helper function for authenticated fetches - This remains robust
 const authFetch = async (url, options = {}) => {
