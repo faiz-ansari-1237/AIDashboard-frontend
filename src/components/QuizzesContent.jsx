@@ -17,7 +17,7 @@ const QuizzesContent = ({ quizId, handleSectionChange }) => {
     const [submissionResult, setSubmissionResult] = useState(null); // Stores the backend's result
     const [isSubmitting, setIsSubmitting] = useState(false); // Tracks if submission is in progress
 
-    const API_BASE_URL = 'http://localhost:5000/api';
+    const API_BASE_URL = 'https://aidashboard-backend.onrender.com/api/';
 
     // Helper function for authenticated fetches (copied from App.jsx for reusability)
     // In a larger app, you'd put this in a separate utility file.
